@@ -1,34 +1,31 @@
 use cairo_lib::hashing::poseidon::PoseidonHasher;
-use cairo_lib::data_structures::mmr::utils::get_height;
-use cairo_lib::utils::bitwise::{left_shift, bit_length};
+use cairo_lib::utils::bitwise::bit_length;
 use cairo_lib::utils::math::pow;
 
 // @notice Represents a proof of inclusion in a MMR
-type Proof = Span<felt252>;
+pub type Proof = Span<felt252>;
 
 
 #[generate_trait]
-impl ProofImpl of ProofTrait {
+pub impl ProofImpl of ProofTrait {
     // @notice Computes a peak of the Merkle Mountain Range (root of a subtree)
     // @param index Index of the element to start from
     // @param hash Hash of the element to start from
     // @return The root of the subtree
     fn compute_peak(self: Proof, index: usize, hash: felt252) -> felt252 {
         // calculate direction array
-        // direction[i] - whether the i-th node from the root is a left or a right child of its parent
+        // direction[i] - whether the i-th node from the root is a left or a right child of its
+        // parent
         let mut bits = bit_length(index);
         if self.len() + 1 > bits {
             bits = self.len() + 1;
-        };
+        }
 
         let mut direction: Array<bool> = ArrayTrait::new();
         let mut p: usize = 1;
         let mut q: usize = pow(2, bits) - 1;
 
-        loop {
-            if p >= q {
-                break ();
-            }
+        while p < q {
             let m: usize = (p + q) / 2;
 
             if index < m {
@@ -39,7 +36,7 @@ impl ProofImpl of ProofTrait {
                 q = q - 1;
                 direction.append(true);
             };
-        };
+        }
 
         // find the root hash, starting from the leaf
         let mut current_index = index;

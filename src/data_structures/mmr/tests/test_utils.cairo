@@ -1,12 +1,11 @@
+use cairo_lib::data_structures::mmr::peaks::PeaksTrait;
 use cairo_lib::data_structures::mmr::utils::{
-    get_height, compute_root, count_ones, leaf_index_to_mmr_index, get_peak_info,
+    compute_root, count_ones, get_height, get_peak_info, leaf_index_to_mmr_index,
     mmr_size_to_leaf_count,
 };
 use cairo_lib::hashing::poseidon::PoseidonHasher;
-use cairo_lib::data_structures::mmr::peaks::PeaksTrait;
 
 #[test]
-#[available_gas(99999999)]
 fn test_get_height() {
     assert(get_height(1) == 0, 'get_height 1');
     assert(get_height(2) == 0, 'get_height 2');
@@ -18,7 +17,6 @@ fn test_get_height() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_compute_root() {
     let peak0 = PoseidonHasher::hash_double(245, 287388);
     let peak1 = PoseidonHasher::hash_double(2340, 827394299);
@@ -34,7 +32,6 @@ fn test_compute_root() {
 }
 
 #[test]
-#[available_gas(999999999)]
 fn test_count_ones() {
     assert(count_ones(1) == 1, 'count_ones(1) != 1');
     assert(count_ones(2) == 1, 'count_ones(2) != 1');
@@ -59,7 +56,6 @@ fn test_count_ones() {
 }
 
 #[test]
-#[available_gas(999999999)]
 fn test_leaf_index_to_mmr_index() {
     assert(leaf_index_to_mmr_index(1) == 1, 'leaf_..._index(1) != 1');
     assert(leaf_index_to_mmr_index(2) == 2, 'leaf_..._index(2) != 2');
@@ -75,7 +71,6 @@ fn test_leaf_index_to_mmr_index() {
 }
 
 #[test]
-#[available_gas(999999999)]
 fn test_mmr_size_to_leaf_count() {
     assert(mmr_size_to_leaf_count(1) == 1, 'mmr_size_to_leaf_count(1) != 1');
     assert(mmr_size_to_leaf_count(3) == 2, 'mmr_size_to_leaf_count(3) != 2');
@@ -88,7 +83,6 @@ fn test_mmr_size_to_leaf_count() {
 }
 
 #[test]
-#[available_gas(999999999)]
 fn test_get_peak_info() {
     assert(get_peak_info(11, 11) == (2, 0), 'get_peak_info(11, 11) != (2, 0)');
     assert(get_peak_info(15, 11) == (0, 3), 'get_peak_info(15, 11) != (0, 3)');

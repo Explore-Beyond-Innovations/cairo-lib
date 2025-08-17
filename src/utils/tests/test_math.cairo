@@ -1,7 +1,6 @@
 use cairo_lib::utils::math::pow;
 
 #[test]
-#[available_gas(9999999)]
 fn test_pow() {
     assert(pow(3_u8, 5_u8) == 243, 'u8');
     assert(pow(6_u16, 4_u16) == 1296, 'u16');

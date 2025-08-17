@@ -2,7 +2,6 @@ use cairo_lib::data_structures::mmr::peaks::PeaksTrait;
 use cairo_lib::hashing::poseidon::PoseidonHasher;
 
 #[test]
-#[available_gas(99999999)]
 fn test_bag_peaks_1() {
     let peak0 = PoseidonHasher::hash_double(1, 1);
     let peaks = array![peak0];
@@ -12,7 +11,6 @@ fn test_bag_peaks_1() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_bag_peaks_2() {
     let peak0 = PoseidonHasher::hash_double(1, 287388);
     let peak1 = PoseidonHasher::hash_double(7, 827394299);
@@ -24,7 +22,6 @@ fn test_bag_peaks_2() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_bag_peaks_3() {
     let peak0 = PoseidonHasher::hash_double(245, 287388);
     let peak1 = PoseidonHasher::hash_double(2340, 827394299);
@@ -33,13 +30,12 @@ fn test_bag_peaks_3() {
 
     let bag = peaks.span().bag();
     let expected_bag = PoseidonHasher::hash_double(
-        peak0, PoseidonHasher::hash_double(peak1, peak2)
+        peak0, PoseidonHasher::hash_double(peak1, peak2),
     );
     assert(bag == expected_bag, 'Bag 3 peaks')
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_valid() {
     let peak0 = PoseidonHasher::hash_double(245, 287388);
     let peak1 = PoseidonHasher::hash_double(2340, 827394299);
@@ -55,7 +51,6 @@ fn test_valid() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_containts_peak() {
     let peak0 = PoseidonHasher::hash_double(245, 287388);
     let peak1 = PoseidonHasher::hash_double(2340, 827394299);

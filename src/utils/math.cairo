@@ -1,14 +1,14 @@
-use math::Oneable;
+use core::num::traits::{One, Zero};
 
 // @notice Computes `base ^ exp`
 // @param base The base of the exponentiation
 // @param exp The exponent of the exponentiation
 // @return The exponentiation result
 
-fn pow<
+pub fn pow<
     T,
-    impl TZeroable: Zeroable<T>,
-    impl TOneable: Oneable<T>,
+    impl TZeroable: Zero<T>,
+    impl TOneable: One<T>,
     impl TCopy: Copy<T>,
     impl TDrop: Drop<T>,
     impl TAdd: Add<T>,
@@ -17,9 +17,9 @@ fn pow<
     impl TDiv: Div<T>,
     impl TRem: Rem<T>,
     impl TPartialEq: PartialEq<T>,
-    impl TPartialOrd: PartialOrd<T>
+    impl TPartialOrd: PartialOrd<T>,
 >(
-    mut base: T, mut exp: T
+    mut base: T, mut exp: T,
 ) -> T {
     let two = TOneable::one() + TOneable::one();
     let four = two + two;
@@ -31,16 +31,16 @@ fn pow<
     }
 }
 
-fn slow_pow<
+pub fn slow_pow<
     T,
-    impl TZeroable: Zeroable<T>,
+    impl TZeroable: Zero<T>,
     impl TSub: Sub<T>,
     impl TMul: Mul<T>,
-    impl TOneable: Oneable<T>,
+    impl TOneable: One<T>,
     impl TCopy: Copy<T>,
-    impl TDrop: Drop<T>
+    impl TDrop: Drop<T>,
 >(
-    base: T, mut exp: T
+    base: T, mut exp: T,
 ) -> T {
     if exp.is_zero() {
         TOneable::one()
@@ -49,10 +49,10 @@ fn slow_pow<
     }
 }
 
-fn fast_pow<
+pub fn fast_pow<
     T,
-    impl TZeroable: Zeroable<T>,
-    impl TOneable: Oneable<T>,
+    impl TZeroable: Zero<T>,
+    impl TOneable: One<T>,
     impl TCopy: Copy<T>,
     impl TDrop: Drop<T>,
     impl TAdd: Add<T>,
@@ -60,9 +60,9 @@ fn fast_pow<
     impl TMul: Mul<T>,
     impl TDiv: Div<T>,
     impl TRem: Rem<T>,
-    impl TPartialEq: PartialEq<T>
+    impl TPartialEq: PartialEq<T>,
 >(
-    mut base: T, mut exp: T
+    mut base: T, mut exp: T,
 ) -> T {
     let mut ans = TOneable::one();
     loop {

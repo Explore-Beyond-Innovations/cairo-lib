@@ -1,7 +1,6 @@
 use cairo_lib::utils::types::byte::{Byte, ByteTrait};
 
 #[test]
-#[available_gas(999999999)]
 fn test_extract_nibbles() {
     let byte0: Byte = 0x00;
     assert(byte0.extract_nibbles() == (0x0, 0x0), 'extract_nibbles 0x00');

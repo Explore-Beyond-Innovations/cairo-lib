@@ -1,7 +1,6 @@
 use cairo_lib::utils::array::span_contains;
 
 #[test]
-#[available_gas(999999)]
 fn test_span_contains() {
     let arr = array![1, 2, 3, 4, 5];
     let span = arr.span();

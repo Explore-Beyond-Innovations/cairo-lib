@@ -1,7 +1,7 @@
-mod types;
-mod bitwise;
-mod math;
-mod array;
+pub mod array;
+pub mod bitwise;
+pub mod math;
 
 #[cfg(test)]
-mod tests;
+pub mod tests;
+pub mod types;

@@ -1,5 +1,6 @@
-mod byte;
-mod words64;
-
+pub mod byte;
 #[cfg(test)]
-mod tests;
+pub mod tests;
+
+pub mod words64;
+

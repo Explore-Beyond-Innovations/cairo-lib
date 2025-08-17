@@ -1,9 +1,8 @@
 use cairo_lib::utils::types::words64::{
-    Words64, Words64Trait, reverse_endianness_u64, bytes_used_u64
+    Words64, Words64Trait, bytes_used_u64, reverse_endianness_u64,
 };
 
 #[test]
-#[available_gas(99999999)]
 fn test_slice_words64_le_multiple_words_not_full() {
     let val: Words64 = array![0xabcdef1234567890, 0x7584934785943295, 0x48542576].span();
 
@@ -15,11 +14,9 @@ fn test_slice_words64_le_multiple_words_not_full() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_slice_words64_le_multiple_words_full() {
     let val: Words64 = array![0xabcdef1234567890, 0x7584934785943295, 0x48542576].span();
 
-    let gas = testing::get_available_gas();
     let res = val.slice_le(4, 16);
     assert(res.len() == 2, 'Wrong len');
     assert(*res.at(0) == 0x943295abcdef1234, 'Wrong value at 0');
@@ -27,7 +24,6 @@ fn test_slice_words64_le_multiple_words_full() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_slice_words64_le_single_word_not_full() {
     let val: Words64 = array![0xabcdef1234567890, 0x7584934785943295, 0x48542576].span();
 
@@ -37,7 +33,6 @@ fn test_slice_words64_le_single_word_not_full() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_slice_words64_le_single_word_full() {
     let val: Words64 = array![0xabcdef1234567890, 0x7584934785943295, 0x48542576].span();
 
@@ -47,7 +42,6 @@ fn test_slice_words64_le_single_word_full() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_as_u256_be_full() {
     let words = array![
         0x2e8b632605e21673, 0x480829ebcee54bc4, 0xb6f239256ff310f9, 0x09898da43a5d35f4,
@@ -59,7 +53,6 @@ fn test_as_u256_be_full() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_as_u256_be_not_full() {
     let words = array![0x2e8b632605e21673, 0x480829ebcee54bc4, 0xb6f2392a].span();
 
@@ -68,7 +61,6 @@ fn test_as_u256_be_not_full() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_as_u256_be_not_full_start() {
     let words = array![0x008b632605e20000, 0x480829ebcee54bc4, 0xb6f2392a].span();
 
@@ -77,7 +69,6 @@ fn test_as_u256_be_not_full_start() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_as_u256_be_not_full_end() {
     let words = array![0x2e8b632605e20000, 0x480829ebcee54bc4, 0xb6f2392a].span();
 
@@ -86,7 +77,6 @@ fn test_as_u256_be_not_full_end() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_as_u256_le_full() {
     let words = array![
         0x2e8b632605e21673, 0x480829ebcee54bc4, 0xb6f239256ff310f9, 0x09898da43a5d35f4,
@@ -98,7 +88,6 @@ fn test_as_u256_le_full() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_as_u256_le_not_full() {
     let words = array![0x2e8b632605e21673, 0x480829ebcee54bc4, 0xb6f2392a].span();
 
@@ -107,7 +96,6 @@ fn test_as_u256_le_not_full() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_as_u256_le_not_full_start() {
     let words = array![0x008b632605e20000, 0x480829ebcee54bc4, 0xb6f2392a].span();
 
@@ -116,7 +104,6 @@ fn test_as_u256_le_not_full_start() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_as_u256_le_not_full_end() {
     let words = array![0x008b632605e20000, 0x480829ebcee54bc4, 0xb6f2392a].span();
 
@@ -125,7 +112,6 @@ fn test_as_u256_le_not_full_end() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_reverse_endianness_u64() {
     let val = 0x1234567890abcdef;
     let expected = 0xefcdab9078563412;
@@ -133,7 +119,6 @@ fn test_reverse_endianness_u64() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_reverse_endianness_not_full() {
     let val = 0xabcdef;
     let expected = 0xefcdab;
@@ -141,7 +126,6 @@ fn test_reverse_endianness_not_full() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_reverse_endianness_not_full_padding() {
     let val = 0xabcdef;
     let expected = 0xefcdab00;
@@ -149,7 +133,6 @@ fn test_reverse_endianness_not_full_padding() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_bytes_used() {
     let mut num = 0x1234567890abcdef;
     let pow2 = 0x100;

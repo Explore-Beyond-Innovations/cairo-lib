@@ -16,7 +16,6 @@ fn helper_test_get_elements() -> Span<felt252> {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_compute_peak_all_left() {
     let elems = helper_test_get_elements();
 
@@ -28,7 +27,6 @@ fn test_compute_peak_all_left() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_compute_peak_all_right() {
     let elems = helper_test_get_elements();
 
@@ -40,7 +38,6 @@ fn test_compute_peak_all_right() {
 }
 
 #[test]
-#[available_gas(99999999)]
 fn test_compute_peak_left_right() {
     let elems = helper_test_get_elements();
 

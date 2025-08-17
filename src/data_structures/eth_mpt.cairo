@@ -1,17 +1,16 @@
-use cairo_lib::hashing::keccak::keccak_cairo_words64;
 use cairo_lib::encoding::rlp::{RLPItem, rlp_decode, rlp_decode_list_lazy};
-use cairo_lib::utils::types::byte::{Byte, ByteTrait};
-use cairo_lib::utils::bitwise::{right_shift, left_shift};
-use cairo_lib::utils::types::words64::{Words64, Words64Trait};
+use cairo_lib::hashing::keccak::keccak_cairo_words64;
 use cairo_lib::utils::math::pow;
+use cairo_lib::utils::types::byte::{Byte, ByteTrait};
+use cairo_lib::utils::types::words64::{Words64, Words64Trait};
 
 // @notice Ethereum Merkle Patricia Trie struct
 #[derive(Drop)]
-struct MPT {
-    root: u256
+pub struct MPT {
+    pub root: u256,
 }
 
-impl MPTDefault of Default<MPT> {
+pub impl MPTDefault of Default<MPT> {
     // @return MPT with root 0
     fn default() -> MPT {
         MPTTrait::new(0)
@@ -20,7 +19,7 @@ impl MPTDefault of Default<MPT> {
 
 // @notice Represents a node in the MPT
 #[derive(Drop, PartialEq)]
-enum MPTNode {
+pub enum MPTNode {
     // @param hashes 16 hashes of children
     // @param value value of the node
     Branch: (Span<Words64>, Words64),
@@ -35,11 +34,11 @@ enum MPTNode {
     // @param value value of the node
     // @param nibbles_skip number of nibbles to skip in the key end
     // @param n_nibbles number of nibbles in key_end
-    Leaf: (Words64, Words64, usize, usize)
+    Leaf: (Words64, Words64, usize, usize),
 }
 
 #[generate_trait]
-impl MPTImpl of MPTTrait {
+pub impl MPTImpl of MPTTrait {
     // @notice Create a new MPT with a root
     // @param root Root of the MPT
     // @return MPT with the given root
@@ -53,7 +52,7 @@ impl MPTImpl of MPTTrait {
     // @param proof Merkle proof, collection of rlp encoded nodes
     // @return Result with the value associated with the key, empty in case of non inclusion
     fn verify(
-        self: @MPT, key: u256, key_len: usize, proof: Span<Words64>
+        self: @MPT, key: u256, key_len: usize, proof: Span<Words64>,
     ) -> Result<Words64, felt252> {
         let mut current_hash = *self.root;
         let mut proof_index: usize = 0;
@@ -75,22 +74,11 @@ impl MPTImpl of MPTTrait {
             // If it's not the last node and more than 9 words, it must be a branch node
             let (decoded, rlp_byte_len) = if proof_index != proof_len - 1 && node.len() > 9 {
                 let current_nibble = (key / key_pow2) & 0xf;
-                // Unwrap impossible to fail, as we are masking with 0xf, meaning the result is always a nibble
-                match MPTTrait::lazy_rlp_decode_branch_node(
-                    node, current_nibble.try_into().unwrap()
-                ) {
-                    Result::Ok(d) => d,
-                    Result::Err(e) => {
-                        break Result::Err(e);
-                    }
-                }
+                // Unwrap impossible to fail, as we are masking with 0xf, meaning the result is
+                // always a nibble
+                Self::lazy_rlp_decode_branch_node(node, current_nibble.try_into().unwrap()).unwrap()
             } else {
-                match MPTTrait::decode_rlp_node(node) {
-                    Result::Ok(d) => d,
-                    Result::Err(e) => {
-                        break Result::Err(e);
-                    }
-                }
+                Self::decode_rlp_node(node).unwrap()
             };
 
             let mut last_word_byte_len = rlp_byte_len % 8;
@@ -98,12 +86,12 @@ impl MPTImpl of MPTTrait {
                 last_word_byte_len = 8;
             }
 
-            let hash = MPTTrait::hash_rlp_node(node, last_word_byte_len);
+            let hash = Self::hash_rlp_node(node, last_word_byte_len);
             assert(hash == current_hash, 'Element not matching');
 
             match decoded {
                 MPTNode::Branch((
-                    nibbles, value
+                    nibbles, value,
                 )) => {
                     // If we reached the end of the key, return the value
                     if key_pow2 == 0 {
@@ -111,18 +99,14 @@ impl MPTImpl of MPTTrait {
                     }
 
                     let current_nibble = (key / key_pow2) & 0xf;
-                    // Unwrap impossible to fail, as we are masking with 0xf, meaning the result is always a nibble
+                    // Unwrap impossible to fail, as we are masking with 0xf, meaning the result is
+                    // always a nibble
                     let current_hash_words = *nibbles.at(current_nibble.try_into().unwrap());
                     current_hash =
-                        if current_hash_words.len() == 0 {
+                        if current_hash_words.is_empty() {
                             break Result::Ok(array![].span());
                         } else {
-                            match current_hash_words.as_u256_le(32) {
-                                Result::Ok(h) => h,
-                                Result::Err(_) => {
-                                    break Result::Err('Invalid hash');
-                                }
-                            }
+                            current_hash_words.as_u256_le(32).expect('Invalid hash')
                         };
                     key_pow2 = key_pow2 / 16;
                 },
@@ -134,7 +118,7 @@ impl MPTImpl of MPTTrait {
                     key_pow2 = key_pow2 / 16;
                 },
                 MPTNode::Extension((
-                    shared_nibbles, next_node, nibbles_skip, n_nibbles
+                    shared_nibbles, next_node, nibbles_skip, n_nibbles,
                 )) => {
                     let mut shared_nibbles_pow2 = pow(2, nibbles_skip.into() * 4);
 
@@ -174,13 +158,11 @@ impl MPTImpl of MPTTrait {
                             shared_nibbles_pow2 = 16;
                             shared_nibbles_word_idx += 1;
                             shared_nibbles_word = *shared_nibbles.at(shared_nibbles_word_idx);
+                        } else if in_byte {
+                            shared_nibbles_pow2 = shared_nibbles_pow2 * 0x1000;
                         } else {
-                            if in_byte {
-                                shared_nibbles_pow2 = shared_nibbles_pow2 * 0x1000;
-                            } else {
-                                shared_nibbles_pow2 = shared_nibbles_pow2 / 0x10;
-                            }
-                        };
+                            shared_nibbles_pow2 = shared_nibbles_pow2 / 0x10;
+                        }
 
                         in_byte = !in_byte;
                     };
@@ -192,13 +174,11 @@ impl MPTImpl of MPTTrait {
                             }
                             current_hash = next_hash;
                         },
-                        Result::Err(e) => {
-                            break Result::Err(e);
-                        }
+                        Result::Err(e) => { break Result::Err(e); },
                     }
                 },
                 MPTNode::Leaf((
-                    key_end, value, nibbles_skip, n_nibbles
+                    key_end, value, nibbles_skip, n_nibbles,
                 )) => {
                     let mut key_end_pow2 = pow(2, nibbles_skip.into() * 4);
 
@@ -233,18 +213,16 @@ impl MPTImpl of MPTTrait {
                             key_end_pow2 = 16;
                             key_end_word_idx += 1;
                             key_end_word = *key_end.at(key_end_word_idx);
+                        } else if in_byte {
+                            key_end_pow2 = key_end_pow2 * 0x1000;
                         } else {
-                            if in_byte {
-                                key_end_pow2 = key_end_pow2 * 0x1000;
-                            } else {
-                                key_end_pow2 = key_end_pow2 / 0x10;
-                            }
-                        };
+                            key_end_pow2 = key_end_pow2 / 0x10;
+                        }
 
                         in_byte = !in_byte;
                     };
-                }
-            };
+                },
+            }
 
             proof_index += 1;
         }
@@ -266,7 +244,7 @@ impl MPTImpl of MPTTrait {
                         if i == 16 {
                             let (value, _) = *l.at(16);
                             break Result::Ok(
-                                (MPTNode::Branch((nibble_hashes.span(), value)), rlp_byte_len)
+                                (MPTNode::Branch((nibble_hashes.span(), value)), rlp_byte_len),
                             );
                         }
 
@@ -277,7 +255,8 @@ impl MPTImpl of MPTTrait {
                 } else if len == 2 {
                     let (first, first_len) = *l.at(0);
                     let (second, _) = *l.at(1);
-                    // Unwrap impossible to fail, as we are making with 0xff, meaning the result always fits in a byte
+                    // Unwrap impossible to fail, as we are making with 0xff, meaning the result
+                    // always fits in a byte
                     let prefix_byte: Byte = (*first.at(0) & 0xff).try_into().unwrap();
                     let (prefix, _) = prefix_byte.extract_nibbles();
 
@@ -286,16 +265,16 @@ impl MPTImpl of MPTTrait {
                     if prefix == 0 {
                         match second.as_u256_le(32) {
                             Result::Ok(n) => Result::Ok(
-                                (MPTNode::Extension((first, n, 2, n_nibbles - 1)), rlp_byte_len)
+                                (MPTNode::Extension((first, n, 2, n_nibbles - 1)), rlp_byte_len),
                             ),
-                            Result::Err(_) => Result::Err('Invalid next node')
+                            Result::Err(_) => Result::Err('Invalid next node'),
                         }
                     } else if prefix == 1 {
                         match second.as_u256_le(32) {
                             Result::Ok(n) => Result::Ok(
-                                (MPTNode::Extension((first, n, 1, n_nibbles)), rlp_byte_len)
+                                (MPTNode::Extension((first, n, 1, n_nibbles)), rlp_byte_len),
                             ),
-                            Result::Err(_) => Result::Err('Invalid next node')
+                            Result::Err(_) => Result::Err('Invalid next node'),
                         }
                     } else if prefix == 2 {
                         Result::Ok((MPTNode::Leaf((first, second, 2, n_nibbles - 1)), rlp_byte_len))
@@ -307,16 +286,16 @@ impl MPTImpl of MPTTrait {
                 } else {
                     Result::Err('Invalid RLP list len')
                 }
-            }
+            },
         }
     }
 
 
     fn lazy_rlp_decode_branch_node(
-        rlp: Words64, current_nibble: u8
+        rlp: Words64, current_nibble: u8,
     ) -> Result<(MPTNode, usize), felt252> {
         let (lazy_item, rlp_byte_len) = rlp_decode_list_lazy(
-            rlp, array![current_nibble.into()].span()
+            rlp, array![current_nibble.into()].span(),
         )?;
         match lazy_item {
             RLPItem::Bytes(_) => Result::Err('Invalid RLP for node'),
@@ -324,9 +303,9 @@ impl MPTImpl of MPTTrait {
                 let (hash_words, _) = *l.at(0);
                 match hash_words.as_u256_le(32) {
                     Result::Ok(h) => Result::Ok((MPTNode::LazyBranch(h), rlp_byte_len)),
-                    Result::Err(_) => Result::Err('Invalid hash')
+                    Result::Err(_) => Result::Err('Invalid hash'),
                 }
-            }
+            },
         }
     }
 
